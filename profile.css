@@ -1,0 +1,44 @@
+*{
+    font-family: Arial, Helvetica, sans-serif;
+}
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    gap: 20px;
+}
+.profile-header{
+    font-weight: bold;
+    margin-bottom:15px;
+    font-size: 20px;
+}
+.main-container{
+   
+    height: 400px;
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+     box-shadow: 0px 2px 5px lightgray;
+}
+#profile{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#logout-btn{
+        padding: 10px 120px;
+        background-color: #514aef;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+    .signup-message{
+      
+        color: #8580f8;
+        font-size: 22px;
+    }

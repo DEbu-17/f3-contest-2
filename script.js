@@ -1,86 +1,72 @@
-function generateRandomToken() {
-  return Math.floor(Math.random() * 900000 + 100000);
+
+if (
+  window.location.pathname == "/profile.html" &&
+  !localStorage.getItem("accessToken")
+) {
+  window.location.href = "index.html";
+}
+// if user is trying to acces the signup page but the user is logged in
+if (
+  window.location.pathname == "/index.html" &&
+  localStorage.getItem("accessToken")
+) {
+  window.location.href = "profile.html";
 }
 
-// local storAge
 
-// saving DaTa
-function saveToLocalStorage(fullName, email, password, token) {
-  localStorage.setItem("fullName", fullName);
-  localStorage.setItem("email", email);
-  localStorage.setItem("password", password);
-  localStorage.setItem("token", token);
+if (window.location.pathname == "/index.html") {
+  const form = document.querySelector("form");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let username = document.getElementById("name");
+    let email = document.getElementById("email");
+    let password = document.getElementById("password");
+    let cpassword = document.getElementById("cpassword");
+
+    let array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    let accessToken = Array.from(array, (b) =>
+      b.toString(16).padStart(2, "0")
+    ).join("");
+     
+    if(password.value != cpassword.value){
+      document.getElementById("login-message").innerText = `Oops Wrong Password!`;
+      return;
+    }
+
+    let user1 = {
+      username: username.value,
+      email: email.value,
+      password: password.value,
+      cpassword: cpassword.value,
+      accessToken: accessToken,
+    };
+
+    localStorage.setItem("user1", JSON.stringify(user1));
+    localStorage.setItem("accessToken", JSON.stringify(accessToken));
+
+    setTimeout(() => {
+      window.location.href = "/profile.html";
+    }, 1000);
+  });
+}else if(window.location.pathname == "/profile.html"){
+  let user = JSON.parse(localStorage.getItem("user1"));
+  let profileText = `
+     <p>Full Name:${user.username}</p>
+     <p>Email:${user.email}</p>
+     <p>Token:${user.accessToken}</p>
+     <p>Password:${user.password}</p>
+  `
+  document.getElementById("profile").innerHTML = profileText;
+
+  const logoutBtn = document.getElementById("logout-btn");
+  logoutBtn.addEventListener("click",()=>{
+    localStorage.clear();
+    document.getElementById("message").innerText = "Logging Out";
+
+    setTimeout(()=>{
+      window.location.href = "/index.html";
+    },2000);
+  })
 }
-// Getting Data fROm local storAge
-function getFromLocalStorage() {
-  const fullName = localStorage.getItem("fullName");
-  const email = localStorage.getItem("email");
-  const password = localStorage.getItem("password");
-  const token = localStorage.getItem("token");
-  return { fullName, email, password, token };
-}
-
-// filling details
-function showProfile() {
-  const fullName = document.getElementById("fullName").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
-
-  if (!fullName || !email || !password || !confirmPassword) {
-    document.getElementById("error-message").textContent =
-      "Error! All fields are mandatory.";
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    document.getElementById("error-message").textContent =
-      "Error! Passwords do not match.";
-    return;
-  } else {
-    document.getElementById("error-message").textContent = "";
-  }
-
-  // Checking if user is already logged in
-  const storedData = getFromLocalStorage();
-  let token;
-  if (storedData.email) {
-    //if already logged in, reuse the existing token
-    token = storedData.token;
-  } else {
-    // ifnot logged in, generate a new token
-    token = generateRandomToken();
-  }
-  saveToLocalStorage(fullName, email, password, token);
-
-  document.getElementById("profileFullName").textContent = " " + fullName;
-  document.getElementById("profileEmail").textContent = " " + email;
-  document.getElementById("profileToken").textContent = " " + token;
-  document.getElementById("profilePassword").textContent = " " + password;
-
-  document.getElementById("signup-form").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
-  document.getElementById("profile").style.display = "flex";
-}
-
-function showSignupForm() {
-  localStorage.clear();
-  document.getElementById("signup-form").style.display = "block";
-  document.getElementById("profile").style.display = "none";
-  document.getElementById("dashboard").style.display = "none";
-
-  document.getElementById("signup").reset();
-  document.getElementById("error-message").textContent = "";
-}
-
-//data not lost even after reloading the pAge
-window.onload = function () {
-  const storedData = getFromLocalStorage();
-  if (storedData.email) {
-    document.getElementById("fullName").value = storedData.fullName;
-    document.getElementById("email").value = storedData.email;
-    document.getElementById("password").value = storedData.password;
-    document.getElementById("confirmPassword").value = storedData.password;
-    showProfile();
-  }
-};
